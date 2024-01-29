@@ -16,7 +16,20 @@ TE expression is quantified in each tumor sample using featureCounts by enabling
 The second step of the workflow detects potential peptidecoding TE. Briefly, the nucleotide sequences of each tumor associated TE are formatted into 6 possible frames and only putative ORFs of at least 10 aminoacids from their translated sequences are retained.
 
 3.
-The third step reduces the number of false-positive TE-derived peptides by aligning their sequences against two pre-built databases of known proteins (one specific for LTR and one for LINE TE families) using Blastp. Only conserved sequences (identity > 90% and e-value < 0.01) are retained and considered as high-quality TE-derived peptides.
+The third step reduces the number of false-positive TE-derived peptides by aligning their sequences against two pre-built databases of known proteins (one specific for LTR and one for LINE TE families) using Blastp.
 
-4.
+```
+# methionine ORF fasta file for LTR can be download from: http://geve.med.u-tokai.ac.jp/download/
+# ORF1 e ORF2 for LINE can be downloaded from NCBI protein database
+
+The required db files used for blast can be obtained as following:
+
+conda create -n blast -c conda-forge -c bioconda -c defaults blast
+conda activate blast
+makeblastdb -dbtype prot -in LINE_ORF.fasta -out db_LINE
+
+```
+Only conserved sequences (identity > 90% and e-value < 0.01) are retained and considered as high-quality TE-derived peptides.
+
+5.
 In the last step of the workflow, putative antigens derived from the selected peptides are detected using netMHCpan and then prioritized both for MHC-I binding affinity and recognition potential scores.
