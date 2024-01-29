@@ -4,7 +4,7 @@ The ANTigens from Repetitive ElementS (ANTARES) pipeline allows detecting high q
 
 The pipeline consists in the following steps: 
 
-1.tumor_associated_TE.R
+**- 1.tumor_associated_TE.R**
   TE expression is quantified in each tumor sample using featureCounts by enabling optimal parameters for counting reads mapping on repetitive genomic regions. Tumor specific TEs are filtered with differential analysis
 
 2.
