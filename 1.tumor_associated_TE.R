@@ -1,8 +1,44 @@
+### required packages and functions ###
 require(AnnotationHub)
 library(dplyr)
 library(GenomicFeatures)
 require(diffloop)
 require(DESeq2)
+library(BSgenome.Hsapiens.UCSC.hg38)
+
+getDEGsEdgeR <- function(ddata, interestGroup, baselineGroup, min_num_cpm = 3){ 
+  library(edgeR)
+  ddata <- ddata[, c(interestGroup, baselineGroup)]
+  groups <- rep("Interest", ncol(ddata))
+  names(groups) <- colnames(ddata)
+  groups[names(groups) %in% baselineGroup] <- "Baseline"
+  groups <- as.factor(groups)
+  baseLine <- "Baseline"
+  
+  design <- model.matrix(~ 0 + groups)
+  colnames(design) <- levels(groups)
+  
+  DEA <- DGEList(ddata, group = groups)
+  DEA <- calcNormFactors(DEA)
+  #keep genes that achieve at least une count per million (cpm) in at least ten samples
+  keep <- rowSums(cpm(DEA) > 1) >= min_num_cpm
+  DEA <- DEA[keep,]
+  DEA$samples$lib.size <- colSums(DEA$counts)
+  message("Estimating GLM Common Dispersion")
+  DEA <- estimateGLMCommonDisp(DEA, design = design)
+  message("Estimating GLM Tagwise Dispersion")
+  DEA <- estimateGLMTagwiseDisp(DEA, design = design)
+  message("Fitting the GLM Model")
+  fit <- glmFit(DEA, design = design)
+  contrast <- rep(1, 2)
+  blId <- which(colnames(design) == baseLine)
+  contrast[blId] <- -1
+  message("Maximum Likelihood Estimate")
+  test <- glmLRT(fit, contrast = contrast)
+  ans <- topTags(test, n = nrow(DEA$counts))
+  ans <- ans$table
+  return(ans)
+}
 
 ### Get genomic regions for selected TE ###
 hub <- AnnotationHub()
@@ -97,4 +133,11 @@ dds <- DESeqDataSetFromMatrix(countData = round(featureCounts_matrix),
                               design = ~ Sample_Type ) #Sample_Type column contains the info of Tumor/Normal samples
 dds <- estimateSizeFactors(dds)
 normalized_counts <- counts(dds, normalized=TRUE)
-# save(normalized_counts, file="normCount_RE_repName.RDa")
+normalized_counts = normalized_counts[rowSums(normalized_counts) != 0,]
+Repeats_range_selected = Repeats_range_selected[names(Repeats_range_selected) %in% rownames(normalized_counts)]
+
+## Get sequence from reference fasta ###
+
+human_hg38 = BSgenome.Hsapiens.UCSC.hg38
+Repeats_seq_selected = getSeq(human_hg38, Repeats_range_selected)
+names(Repeats_seq_selected) = Repeats_range_selected$repName
