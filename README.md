@@ -33,5 +33,16 @@ makeblastdb -dbtype prot -in LINE_ORF.fasta -out db_LINE
 ```
 Only conserved sequences (identity > 90% and e-value < 0.01) are retained and considered as high-quality TE-derived peptides.
 
-5.
-In the last step of the workflow, putative antigens derived from the selected peptides are detected using netMHCpan and then prioritized both for MHC-I binding affinity and recognition potential scores.
+4.
+Putative antigens derived from the selected peptides are detected using netMHCpan. Given the file of HLA-types for each patient, netMHCpan can be executed as following:
+```
+sample_list_file="HLA_per_patient.txt"
+netMHCpan_executable="netMHCpan-4.1/netMHCpan"
+fasta_file="predicted_peptides_filtered.fasta"
+
+for sample in $(cat "$sample_list_file"); do
+    output_file="netMHpan_predictions_${sample}.txt"
+    "$netMHCpan_executable" -f "$fasta_file" -a "$sample" > "$output_file" &
+done
+```
+**antigen_prediction_prioritization.R**: Putative antigens are prioritized both for MHC-I binding affinity and recognition potential scores.
