@@ -19,8 +19,8 @@ The second step of the workflow detects potential peptidecoding TE. Briefly, the
 The third step reduces the number of false-positive TE-derived peptides by aligning their sequences against two pre-built databases of known proteins (one specific for LTR and one for LINE TE families) using Blastp.
 
 ```
-# methionine ORF fasta file for LTR can be download from: http://geve.med.u-tokai.ac.jp/download/
-# ORF1 e ORF2 for LINE can be downloaded from NCBI protein database
+Methionine ORF fasta file for LTR can be download from: http://geve.med.u-tokai.ac.jp/download/
+ORF1 e ORF2 fasta file for LINE can be downloaded from NCBI protein database
 
 The required db files used for blast can be obtained as following:
 
