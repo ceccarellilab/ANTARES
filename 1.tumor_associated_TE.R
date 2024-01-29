@@ -97,12 +97,10 @@ dds <- DESeqDataSetFromMatrix(countData = round(featureCounts_matrix),
 dds <- estimateSizeFactors(dds)
 normalized_counts <- counts(dds, normalized=TRUE)
 
-
-source("custom_functions.R")
+DEGs = getDEGsEdgeR(normalized_counts, interestGroup, baselineGroup, min_num_cpm = 3)
 #interestGroup vector of samples in interest condition (tumor)
 #baselineGroup vector of samples in control condition (normal)
 
-DEGs = getDEGsEdgeR(normalized_counts, interestGroup, baselineGroup, min_num_cpm = 3)
 select_families = DEGs[DEGs$logFC >= log2(1.5)  & DEGs$FDR <= 0.05,]
 select_families = rownames(select_families)
 
